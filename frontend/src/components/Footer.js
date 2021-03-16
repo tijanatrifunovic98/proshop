@@ -7,7 +7,7 @@ function Footer() {
                 <Container>
                     <Row>
                         <Col className="text-center py-3">
-                        Copyright &copy; Proshop by Tamara Tosic and Tijana Trifunovic 
+                        Copyright &copy; ProShop by Tamara Tosic and Tijana Trifunovic 
                         </Col>
                     </Row>
                 </Container>
