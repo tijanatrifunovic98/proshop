@@ -1,5 +1,6 @@
 import React from 'react'
 import { Spinner } from 'react-bootstrap'
+
 function Loader () {
     return (
         <Spinner
@@ -12,8 +13,7 @@ function Loader () {
                 display: 'block'
             }}
         >
-        <span className='sr-only'>Loading...</span>
-            
+            <span className='sr-only'>Loading...</span>
         </Spinner>
     )
 }
