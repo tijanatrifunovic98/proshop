@@ -10,7 +10,7 @@ from base.serializers import ProductSerializer, OrderSerializer
 from rest_framework import status
 
 @api_view(['POST']) #post request jer saljemo podatke
-@permission_classes(['IsAuthenticated']) #bilo koji user koji je ulogovan
+@permission_classes([IsAuthenticated]) #bilo koji user koji je ulogovan
 def addOrderItems(request):
     user = request.user
     data = request.data
@@ -51,5 +51,6 @@ def addOrderItems(request):
             #updejtovanje kolicine proizvoda posle kupovine
             product.countInStock -= item.qty
             product.save()
-    serializer = OrderSerializer(order, many=True)
-    return Response(serializer.data)
+        
+        serializer = OrderSerializer(order, many=False)
+        return Response(serializer.data)
