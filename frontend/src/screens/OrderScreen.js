@@ -23,7 +23,7 @@ function OrderScreen({ match }) {
         if(!order || order._id !== Number(orderId)){
             dispatch(getOrderDetails(orderId)) //api poziv sa tim id
         } 
-    }, [order, orderId])
+    }, [dispatch, order, orderId])
 
     return loading ? (
         <Loader/>
