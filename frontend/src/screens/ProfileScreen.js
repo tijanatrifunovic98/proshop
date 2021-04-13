@@ -36,7 +36,9 @@ function ProfileScreen({history}) {
         if(!userInfo){
             history.push('/login')
         }else{
-            if(!user || !user.name || success){
+            if(!user || !user.name || success || userInfo._id !== user._id){
+                //poslednji uslov je zbog edit-ovanja user-a od strane admina
+                //postave se vrednosti na usera koji se edituje pa ako su razl resetuj 
                 dispatch({type:USER_UPDATE_PROFILE_RESET})
                 dispatch(getUserDetails('profile'))
                 dispatch(listMyOrders())
