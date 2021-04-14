@@ -4,7 +4,8 @@ import { Table, Button, Row, Col } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux'
 import Loader from '../components/Loader'
 import Message from '../components/Message'
-import { listProducts, deleteProduct } from '../actions/productActions'
+import { listProducts, deleteProduct, createProduct } from '../actions/productActions'
+import { PRODUCT_CREATE_RESET } from '../constants/productConstants'
 
 function ProductListScreen({history}) {
     const dispatch = useDispatch()
@@ -15,19 +16,26 @@ function ProductListScreen({history}) {
     const productDelete = useSelector(state => state.productDelete)
     const {loading:loadingDelete, error:errorDelete, success:successDelete} = productDelete
 
+    const productCreate = useSelector(state => state.productCreate)
+    const {loading:loadingCreate, error:errorCreate, success:successCreate, product:createdProduct} = productCreate
+
     const userLogin = useSelector(state => state.userLogin)
     const {userInfo} = userLogin
     
     useEffect(()=>{
-        if(userInfo && userInfo.isAdmin){
-            dispatch(listProducts())
-        }else{
-            //ako pokusa preko linka da pristupi admin/userlist odma preusmeri na login stranu
-            //ili na homepage ukoliko je vec ulogovan korisnik koji nije admin
+        dispatch({type:PRODUCT_CREATE_RESET})
+
+        if(!userInfo.isAdmin){ 
             history.push('/login')
         }
+        if(successCreate){
+            //dispatch(listProducts())
+            history.push(`/admin/product/${createdProduct._id}/edit`) //ako je kreiran proizvod preusmeri ga na stranu pojedinacnog proizvofa
+        }else{
+            dispatch(listProducts())
+        }
         //dispatch(listProducts())
-    }, [dispatch, history, userInfo, successDelete])
+    }, [dispatch, history, userInfo, successDelete, successCreate, createdProduct])
 
     const deleteHandler = (id) => {
         //console.log('DELETE:', id)
@@ -37,8 +45,9 @@ function ProductListScreen({history}) {
         }
         
     }
-    const createProductHandler = (product) => {
+    const createProductHandler = () => {
         //kreiranje proizvoda
+        dispatch(createProduct())
     }
     return (
         <div>
@@ -56,6 +65,10 @@ function ProductListScreen({history}) {
             </Row>
             {loadingDelete && <Loader/>}
             {errorDelete && <Message variant='danger'>{errorDelete}</Message>}
+
+            {loadingCreate && <Loader/>}
+            {errorCreate && <Message variant='danger'>{errorCreate}</Message>}
+
             {loading 
             ? (<Loader/>) 
             : error 
@@ -82,7 +95,7 @@ function ProductListScreen({history}) {
                                     <td>{product.category}</td>
                                     <td>{product.brand}</td>
                                     <td> 
-                                        <LinkContainer to={`/admin/product/${product.id}/edit/`}>
+                                        <LinkContainer to={`/admin/product/${product._id}/edit/`}>
                                             <Button variant='light' className='btn-sm'>
                                                 <i className='fas fa-edit'></i>
                                             </Button>
