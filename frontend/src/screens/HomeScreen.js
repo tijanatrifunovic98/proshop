@@ -6,20 +6,22 @@ import Loader from '../components/Loader'
 import Message from '../components/Message'
 import { listProducts } from '../actions/productActions'
 import axios from 'axios'
-function HomeScreen() {
+function HomeScreen({history}) {
     //const [products, setProducts] = useState([])
     const dispatch = useDispatch()
     const productList = useSelector(state => state.productList)
     const {error, loading, products} = productList
+    let keyword = history.location.search
+    //console.log(keyword)
     useEffect(()=>{
         // async function fetchProducts(){
         //     const { data } = await axios.get('/api/products/')
         //     setProducts(data)
         // }
         // fetchProducts()
-        dispatch(listProducts()) //ucitavanje proizvoda u redux deo
+        dispatch(listProducts(keyword)) //ucitavanje proizvoda u redux deo
 
-    },[dispatch])
+    },[dispatch, keyword])
     //const products = []
     return (
         <div>
