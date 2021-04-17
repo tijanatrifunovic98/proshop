@@ -5,8 +5,28 @@ import { useDispatch, useSelector } from 'react-redux'
 import Message from '../components/Message'
 import CheckoutSteps from '../components/CheckoutSteps'
 import { createOrder } from '../actions/orderActions'
+import CurrencyRow from '../components/CurrencyRow'
 import { ORDER_CREATE_RESET } from '../constants/orderConstants'
 function PlaceOrderScreen({ history }) {
+    //KONVERTER VALUTA
+    const BASE_URL = 'http://api.exchangeratesapi.io/v1/latest?access_key=3c03298fb6f417ea8e2479f79ec0733f'
+    const [currencyOptions, setCurrencyOptions] = useState([])
+    //console.log(currencyOptions)
+    const [fromCurrency, setFromCurrency] = useState()
+    const [toCurrency, setToCurrency] = useState()
+    const [exchangeRate, setExchangeRate] = useState()
+    const [amount, setAmount] = useState(1)
+    const [amountInFromCurrency, setAmountInFromCurrency]=useState(true)
+    //console.log(exchangeRate)
+    //KONVERTER VALUTA
+    let toAmount, fromAmount
+    if(amountInFromCurrency){
+        fromAmount=amount
+        toAmount=amount*exchangeRate
+    }else{
+        toAmount=amount
+        fromAmount=amount / exchangeRate
+    }
 
     const orderCreate = useSelector(state => state.orderCreate)
     const { order, error, success } = orderCreate
@@ -19,6 +39,7 @@ function PlaceOrderScreen({ history }) {
     cart.shippingPrice = (cart.itemsPrice > 100 ? 0 : 10).toFixed(2)
     cart.taxPrice = Number((0.082) * cart.itemsPrice).toFixed(2)
     cart.totalPrice = Number(Number(cart.itemsPrice) + Number(cart.shippingPrice) + Number(cart.taxPrice)).toFixed(2)
+    fromAmount=cart.totalPrice
 
     if(!cart.paymentMethod){
         //ako ga nemamo vrati se unazad
@@ -32,6 +53,29 @@ function PlaceOrderScreen({ history }) {
             dispatch({type:ORDER_CREATE_RESET}) //brisanje iz local storage kad se poruci
         }
     }, [success, history])
+
+    useEffect(()=>{
+        fetch(BASE_URL)
+            .then(res=>res.json())
+            //.then(data=> console.log(data))
+            .then(data => {
+                const firstCurrency=Object.keys(data.rates)[0]
+                setCurrencyOptions([data.base, ...Object.keys(data.rates)])
+                setFromCurrency(data.base)
+                setToCurrency(firstCurrency)
+                setExchangeRate(data.rates[firstCurrency])
+            })
+            
+    },[])
+
+    useEffect(()=>{
+        if(fromCurrency!=null && toCurrency!=null){
+            //console.log("Nisu null")
+            fetch(`${BASE_URL}?base=${fromCurrency}&symbols=${toCurrency}&access_key=3c03298fb6f417ea8e2479f79ec0733f`)
+                .then(res=>res.json())
+                .then(data => setExchangeRate(data.rates[toCurrency]))
+        }
+    },[fromCurrency, toCurrency])
 
     const placeOrder = () => {
         //console.log("Place order");
@@ -135,6 +179,23 @@ function PlaceOrderScreen({ history }) {
                                     <Col>Total:</Col>
                                     <Col>${cart.totalPrice}</Col>
                                 </Row>
+                            </ListGroup.Item>
+
+                            <ListGroup.Item>
+                                <h2>Convert</h2>
+                                <CurrencyRow 
+                                    currencyOptions={currencyOptions}
+                                    selectedCurrency={fromCurrency}
+                                    onChangeCurrency={e => setFromCurrency(e.target.value)}
+                                    amount={fromAmount}
+                                />
+                                <div className="equals">=</div>
+                                <CurrencyRow 
+                                    currencyOptions={currencyOptions}
+                                    selectedCurrency={toCurrency}
+                                    onChangeCurrency={e => setToCurrency(e.target.value)}
+                                    amount={toAmount}
+                                />
                             </ListGroup.Item>
 
                             <ListGroup.Item>

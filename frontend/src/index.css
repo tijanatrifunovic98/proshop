@@ -47,3 +47,13 @@ h3{
     font-size: 2.5vw;
   }
 }
+.input{
+  border: 1px solid #333;
+  border-radius: .3em;
+  padding: .25rem;
+  width: 7em;
+}
+.equals {
+  font-weight: bold;
+  font-size: 2rem;
+}
